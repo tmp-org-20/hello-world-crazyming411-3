@@ -141,6 +141,11 @@ module RSpec
       # @private
       class Registry
         def add(context, name, *metadata_args, &block)
+          unless block
+            RSpec.warning "Shared example group #{name} was defined without a "\
+                          "block and will have no effect. Please define a "\
+                          "block or remove the definition."
+          end
           ensure_block_has_source_location(block) { CallerFilter.first_non_rspec_line }
 
           if valid_name?(name)

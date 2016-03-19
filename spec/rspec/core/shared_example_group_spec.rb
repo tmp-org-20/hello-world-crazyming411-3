@@ -57,6 +57,11 @@ module RSpec
             expect(Kernel).to_not respond_to(shared_method_name)
           end
 
+          it "displays a warning when adding an example group without a block" do
+            expect_warning_with_call_site(__FILE__, __LINE__ + 1)
+            define_shared_group
+          end
+
           it "displays a warning when adding a second shared example group with the same name" do
             group.send(shared_method_name, 'some shared group') {}
             original_declaration = [__FILE__, __LINE__ - 1].join(':')
