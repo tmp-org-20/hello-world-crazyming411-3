@@ -1230,6 +1230,33 @@ module RSpec::Core
       end
     end
 
+    describe '#reporter' do
+      it 'doesnt imediately trigger formatter setup' do
+        config.reporter
+
+        expect(config.formatters).to be_empty
+      end
+
+      it 'allows registering listeners without doubling up formatters' do
+        config.reporter.register_listener double(:message => nil), :message
+
+        expect {
+          config.formatter = :documentation
+        }.to change { config.formatters.size }.from(0).to(1)
+
+        expect {
+          config.reporter.notify :message, double(:message => 'Triggers formatter setup')
+        }.to change { config.formatters.size }.from(1).to(2)
+      end
+
+      it 'still configures a default formatter when none specified' do
+        config.reporter.register_listener double(:message => nil), :message
+        expect {
+          config.reporter.notify :message, double(:message => 'Triggers formatter setup')
+        }.to change { config.formatters.size }.from(0).to(2)
+      end
+    end
+
     describe "#default_formatter" do
       it 'defaults to `progress`' do
         expect(config.default_formatter).to eq('progress')
@@ -1253,6 +1280,7 @@ module RSpec::Core
       context 'when no other formatter has been set' do
         it 'gets used' do
           config.default_formatter = 'doc'
+          config.reporter.notify :message, double(:message => 'Triggers formatter setup')
 
           expect(used_formatters).not_to include(an_instance_of Formatters::ProgressFormatter)
           expect(used_formatters).to include(an_instance_of Formatters::DocumentationFormatter)

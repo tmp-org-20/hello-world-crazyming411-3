@@ -18,6 +18,8 @@ module RSpec::Core
       @failed_examples = []
       @pending_examples = []
       @duration = @start = @load_time = nil
+      @setup_default = lambda {}
+      @setup = false
     end
 
     # @private
@@ -49,6 +51,13 @@ module RSpec::Core
         @listeners[notification.to_sym] << listener
       end
       true
+    end
+
+    # @private
+    def prepare_default(loader, output_stream, deprecation_stream)
+      @setup_default = lambda do
+        loader.setup_default output_stream, deprecation_stream
+      end
     end
 
     # @private
@@ -185,6 +194,7 @@ module RSpec::Core
 
     # @private
     def notify(event, notification)
+      ensure_listeners_ready
       registered_listeners(event).each do |formatter|
         formatter.__send__(event, notification)
       end
@@ -209,6 +219,13 @@ module RSpec::Core
     end
 
   private
+
+    def ensure_listeners_ready
+      unless @setup
+        @setup_default.call
+        @setup = true
+      end
+    end
 
     def close
       notify :close, Notifications::NullNotification
