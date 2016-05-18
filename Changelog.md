@@ -27,6 +27,8 @@ Bug Fixes:
   CLI args. (Matt Jones, #2223).
 * Fix deprecated `:example_group`-based filtering so that it properly
   applies to matching example groups. (Myron Marston, #2234)
+* Delay formatter loading until the last minute to allow accessing the reporter
+  without trigger formatter setup. (Jon Rowe, #2243)
 
 ### 3.5.0.beta1 / 2016-02-06
 [Full Changelog](http://github.com/rspec/rspec-core/compare/v3.4.3...v3.5.0.beta1)
